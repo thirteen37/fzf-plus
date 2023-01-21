@@ -1,0 +1,46 @@
+#!/usr/bin/env zsh
+
+if [[ -f "$1" ]]; then
+    mime=$(file -bL --mime-type "$1")  # e.g. 'application/pdf'
+    case $mime in
+        image/*)
+            if (( $+commands[chafa] )); then
+                chafa "$1"
+            fi
+            if (( $+commands[exiftool] )); then
+                exiftool "$1"
+            elif (( $+commands[identify] )); then
+                identify "$1"
+            fi
+            ;;
+        application/pdf)
+            if (( $+commands[pdftotext] )); then
+                pdftotext "$1" -
+            fi
+            ;;
+        application/bzip2|application/gzip|application/x-xz)
+            tar -tf "$1"
+            ;;
+        application/zip)
+            if (( $+commands[unzip] )); then
+                unzip -l "$1"
+            fi
+            ;;
+        *)
+            if (( $+commands[bat] )); then
+                bat -pp --color=always -r :200 "$1"
+            else
+                head -n 200 "$1"
+            fi
+    esac
+elif [[ -d "$1" ]]; then
+    if (( $+commands[exa] )); then
+        exa --tree -L 1 "$1"
+    elif (( $+commands[tree] )); then
+        tree -C "$1"
+    else
+        ls -lA "$1"
+    fi
+else
+    echo "$1"
+fi
