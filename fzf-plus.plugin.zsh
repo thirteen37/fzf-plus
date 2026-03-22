@@ -11,7 +11,7 @@ if (( $+commands[fd] )); then
 elif (( $+commands[rg] )); then
     local rg_opts="--hidden --follow --glob '!{.git,node_modules}/**'"
     ## default command
-    export FZF_DEFAULT_COMMAND="rg --files $rd_opts"
+    export FZF_DEFAULT_COMMAND="rg --files $rg_opts"
 fi
 ## ** completions
 if [[ -n "$FZF_ALT_C_COMMAND" ]]; then
