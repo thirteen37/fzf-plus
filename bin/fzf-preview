@@ -1,7 +1,14 @@
 #!/usr/bin/env zsh
 
+# Bail early for non-existent paths
+if [[ ! -e "$1" && ! -L "$1" ]]; then
+    echo "Not found: $1"
+    return 1 2>/dev/null || exit 1
+fi
+
 if [[ -f "$1" ]]; then
-    mime=$(file -bL --mime-type "$1")  # e.g. 'application/pdf'
+    mime=$(file -bL --mime-type "$1" 2>/dev/null)
+
     case $mime in
         image/*)
             if (( $+commands[chafa] )); then
@@ -11,36 +18,49 @@ if [[ -f "$1" ]]; then
                 exiftool "$1"
             elif (( $+commands[identify] )); then
                 identify "$1"
+            else
+                echo "[image: $mime]"
             fi
             ;;
         application/pdf)
             if (( $+commands[pdftotext] )); then
-                pdftotext "$1" -
+                pdftotext "$1" - 2>/dev/null | head -n 200
+            else
+                echo "[PDF file — install pdftotext for preview]"
             fi
             ;;
-        application/bzip2|application/gzip|application/x-xz)
-            tar -tf "$1"
-            ;;
-        application/zip)
-            if (( $+commands[unzip] )); then
-                unzip -l "$1"
+        application/*zip*|application/*tar*|application/*bzip*|application/*gzip*|\
+        application/*xz*|application/*zstd*|application/*compress*)
+            if (( $+commands[tar] )); then
+                tar -tf "$1" 2>/dev/null && return
             fi
+            if (( $+commands[unzip] )) && [[ $mime == *zip* ]]; then
+                unzip -l "$1" 2>/dev/null && return
+            fi
+            echo "[archive: $mime]"
+            ;;
+        application/x-executable|application/x-sharedlib|application/octet-stream)
+            file -bL "$1"
             ;;
         *)
             if (( $+commands[bat] )); then
-                bat -pp --color=always -r :200 "$1"
+                bat -pp --color=always -r :200 "$1" 2>/dev/null || head -n 200 "$1"
             else
                 head -n 200 "$1"
             fi
+            ;;
     esac
 elif [[ -d "$1" ]]; then
-    if (( $+commands[exa] )); then
-        exa --tree -L 1 "$1"
+    if (( $+commands[eza] )); then
+        eza --tree -L 2 "$1"
+    elif (( $+commands[exa] )); then
+        exa --tree -L 2 "$1"
     elif (( $+commands[tree] )); then
-        tree -C "$1"
+        tree -C -L 3 "$1"
     else
         ls -lA "$1"
     fi
 else
-    echo "$1"
+    # Broken symlink or special file
+    echo "Cannot preview: $1 ($(file -bL "$1" 2>/dev/null || echo 'unknown'))"
 fi
