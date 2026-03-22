@@ -40,12 +40,17 @@ Then add `fzf-plus` to `plugins=(...)` in your `.zshrc`
 ### Optional dependencies
 
 The previewer uses the following optional dependencies:
-* [bat](https://github.com/sharkdp/bat)
-* [chafa](https://github.com/hpjansson/chafa)
-* [exa](https://the.exa.website/)
-* [exiftool](https://exiftool.org/)
-* [imagemagick](https://imagemagick.org/index.php)'s identify
-* Xpdf's [pdftotext](https://www.xpdfreader.com/pdftotext-man.html)
-* [tree](https://mama.indstate.edu/users/ice/tree/)
+* [bat](https://github.com/sharkdp/bat) — syntax-highlighted text preview
+* [chafa](https://github.com/hpjansson/chafa) — terminal image preview
+* [eza](https://github.com/eza-community/eza) — directory tree listing (preferred over exa)
+* [exa](https://the.exa.website/) — directory tree listing (legacy, unmaintained)
+* [exiftool](https://exiftool.org/) — image metadata
+* [imagemagick](https://imagemagick.org/index.php)'s identify — image metadata (fallback for exiftool)
+* Xpdf's [pdftotext](https://www.xpdfreader.com/pdftotext-man.html) — PDF text extraction
+* [tree](https://mama.indstate.edu/users/ice/tree/) — directory tree listing (fallback for eza/exa)
+
+The file listing uses these optional dependencies:
+* [fd](https://github.com/sharkdp/fd) — fast file finder (preferred)
+* [ripgrep](https://github.com/BurntSushi/ripgrep) — file listing fallback, also powers the `rfv` command
 
 Consult the respective sites for installation instructions on your platform.
